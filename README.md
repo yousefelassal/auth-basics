@@ -21,11 +21,19 @@ passport.use(
 );
 ```
 
-## Hashing Password
+## Securing Passwords
 
 ```js
 bcrypt.hash("somePassword", 10, async (err, hashedPassword) => {
   // if err, do something
   // otherwise, store hashedPassword in DB
 });
+```
+
+```js
+const match = await bcrypt.compare(password, user.password);
+if (!match) {
+  // passwords do not match!
+  return done(null, false, { message: "Incorrect password" })
+}
 ```
