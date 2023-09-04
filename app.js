@@ -6,6 +6,8 @@ const LocalStrategy = require("passport-local").Strategy;
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const config = require("./utils/config");
+const { body, validationResult } = require("express-validator");
+const asyncHandler = require("express-async-handler");
 
 const mongoDb = config.MONGODB_URI;
 mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -32,17 +34,26 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/", (req, res) => res.render("index"));
 app.get("/sign-up", (req, res) => res.render("sign-up-form"));
 
-app.post("/sign-up", async (req, res, next) => {
-    try {
-      const user = new User({
-        username: req.body.username,
-        password: req.body.password
-      });
-      const result = await user.save();
-      res.redirect("/");
-    } catch(err) {
-      return next(err);
-    };
-  });
+app.post("/sign-up", [
+    body("username").trim().isLength({ min: 1 }).escape().withMessage("Username must be specified."),
+    body("password").trim().isLength({ min: 1 }).escape().withMessage("Password must be specified."),
+
+    asyncHandler(async (req, res, next) => {
+        const errors = validationResult(req);
+
+        const user = new User({
+            username: req.body.username,
+            password: req.body.password
+        });
+
+        if (!errors.isEmpty()) {
+            res.render("sign-up-form", { user: user, errors: errors.array() });
+            return;
+        } else {
+            await user.save();
+            res.redirect("/");
+        }
+    })
+]);
 
 app.listen(3000, () => console.log("app listening on port 3000!"));
