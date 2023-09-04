@@ -20,3 +20,12 @@ passport.use(
     })
 );
 ```
+
+## Hashing Password
+
+```js
+bcrypt.hash("somePassword", 10, async (err, hashedPassword) => {
+  // if err, do something
+  // otherwise, store hashedPassword in DB
+});
+```
