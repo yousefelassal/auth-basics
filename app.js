@@ -54,6 +54,12 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
+app.use(function(req, res, next) {
+    res.locals.currentUser = req.user;
+    res.locals.errors = null;
+    next();
+})
+
 app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -68,6 +74,7 @@ app.post("/sign-up", [
 
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
+        res.locals.errors = errors.array();
 
         const user = new User({
             username: req.body.username,
@@ -75,7 +82,7 @@ app.post("/sign-up", [
         });
 
         if (!errors.isEmpty()) {
-            res.render("sign-up-form", { user: user, errors: errors.array() });
+            res.render("sign-up-form", { user: user });
             return;
         } else {
             await user.save();

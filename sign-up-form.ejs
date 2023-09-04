@@ -23,11 +23,19 @@
   <h1>Sign Up</h1>
   <form action="" method="POST">
     <label for="username">Username</label>
-    <input name="username" placeholder="username" type="text" />
+    <input name="username" placeholder="username" type="text" 
+    value="<%= typeof user != 'undefined' ? user.username : '' %>"/>
     <label for="password">Password</label>
-    <input name="password" type="password" />
+    <input name="password" type="password"/>
     <button>Sign Up</button>
   </form>
   <p>already have an account?? <a href="/">login</a></p>
+  <% if (errors) { %>
+    <ul>
+      <% errors.map(function(error){ %>
+        <li><%= error.msg %></li>
+      <% }) %>
+    </ul>
+  <% } %>
 </body>
 </html>
