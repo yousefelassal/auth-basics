@@ -62,7 +62,7 @@ app.use(function(req, res, next) {
     next();
 })
 
-app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use(session({ secret: config.SECRET , resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
