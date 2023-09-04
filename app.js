@@ -8,6 +8,7 @@ const Schema = mongoose.Schema;
 const config = require("./utils/config");
 const { body, validationResult } = require("express-validator");
 const asyncHandler = require("express-async-handler");
+const bcrypt = require("bcrypt");
 
 const mongoDb = config.MONGODB_URI;
 mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -76,18 +77,22 @@ app.post("/sign-up", [
         const errors = validationResult(req);
         res.locals.errors = errors.array();
 
-        const user = new User({
-            username: req.body.username,
-            password: req.body.password
-        });
+        bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
+            if (err) { return next(err); }
 
-        if (!errors.isEmpty()) {
-            res.render("sign-up-form", { user: user });
-            return;
-        } else {
-            await user.save();
-            res.redirect("/");
-        }
+            const user = new User({
+                username: req.body.username,
+                password: hashedPassword
+            });
+
+            if (!errors.isEmpty()) {
+                res.render("sign-up-form", { user: user });
+                return;
+            } else {
+                await user.save();
+                res.redirect("/");
+            }
+        })
     })
 ]);
 
